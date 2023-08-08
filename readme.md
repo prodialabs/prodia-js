@@ -4,9 +4,9 @@
 
 Official TypeScript library for Prodia's AI inference API.
 
--   [Get an API Key](https://app.prodia.com/api)
+- [Get an API Key](https://app.prodia.com/api)
 
--   [View Docs + Pricing](https://docs.prodia.com/reference/getting-started)
+- [View Docs + Pricing](https://docs.prodia.com/reference/getting-started)
 
 ## Usage
 
@@ -18,12 +18,12 @@ npm install prodia --save
 import { createProdia } from "prodia";
 
 const prodia = createProdia({
-	apiKey: "..."
+	apiKey: "...",
 });
 
 (async () => {
 	const job = await prodia.generate({
-		prompt: "puppies in a cloud, 4k"
+		prompt: "puppies in a cloud, 4k",
 	});
 
 	const { imageUrl, status } = await prodia.wait(job);
@@ -40,11 +40,11 @@ Create a new Prodia object.
 
 #### `opts`
 
--   `apiKey` (`string`)
+- `apiKey` (`string`)
 
 Your API key from the Prodia dashboard.
 
--   `base` (`string`)
+- `base` (`string`)
 
 Optional: an enterprise-specific Prodia island.
 
