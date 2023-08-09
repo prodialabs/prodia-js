@@ -1,4 +1,4 @@
-# [![Prodia](./logo.svg)](https://prodia.com)
+# [![Prodia](https://raw.githubusercontent.com/prodialabs/prodia-js/master/logo.svg)](https://prodia.com)
 
 [![npm version](https://badge.fury.io/js/prodia.svg)](https://badge.fury.io/js/prodia)
 [![Validate Formatting & Types](https://github.com/prodialabs/prodia-js/actions/workflows/validate.yml/badge.svg)](https://github.com/prodialabs/prodia-js/actions/workflows/validate.yml)
