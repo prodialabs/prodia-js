@@ -43,6 +43,24 @@ export type ProdiaTransformRequest = {
 	sampler?: string;
 };
 
+export type ProdiaControlnetRequest = {
+	imageUrl: string;
+	controlnet_model: string;
+	controlnet_module?: string;
+	threshold_a?: number;
+	threshold_b?: number;
+	resize_mode?: number;
+	prompt: string;
+	negative_prompt?: string;
+	steps?: number;
+	cfg_scale?: number;
+	seed?: number;
+	upscale?: boolean;
+	sampler?: string;
+	width?: number;
+	height?: number;
+};
+
 /* Constructor Definions */
 
 export type Prodia = ReturnType<typeof createProdia>;
@@ -78,6 +96,23 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 
 	const transform = async (params: ProdiaTransformRequest) => {
 		const response = await fetch(`${base}/transform`, {
+			method: "POST",
+			headers: {
+				...headers,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(params),
+		});
+
+		if (response.status !== 200) {
+			throw new Error(`Bad Prodia Response: ${response.status}`);
+		}
+
+		return (await response.json()) as ProdiaJobQueued;
+	};
+
+	const controlnet = async (params: ProdiaControlnetRequest) => {
+		const response = await fetch(`${base}/controlnet`, {
 			method: "POST",
 			headers: {
 				...headers,
@@ -135,6 +170,7 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 	return {
 		generate,
 		transform,
+		controlnet,
 		wait,
 		getJob,
 		listModels,
