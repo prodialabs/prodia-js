@@ -78,7 +78,7 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 	};
 
 	const generate = async (params: ProdiaGenerateRequest) => {
-		const response = await fetch(`${base}/job`, {
+		const response = await fetch(`${base}/sd/generate`, {
 			method: "POST",
 			headers: {
 				...headers,
@@ -95,7 +95,7 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 	};
 
 	const transform = async (params: ProdiaTransformRequest) => {
-		const response = await fetch(`${base}/transform`, {
+		const response = await fetch(`${base}/sd/transform`, {
 			method: "POST",
 			headers: {
 				...headers,
@@ -112,7 +112,7 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 	};
 
 	const controlnet = async (params: ProdiaControlnetRequest) => {
-		const response = await fetch(`${base}/controlnet`, {
+		const response = await fetch(`${base}/sd/controlnet`, {
 			method: "POST",
 			headers: {
 				...headers,
