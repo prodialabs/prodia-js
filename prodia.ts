@@ -1,13 +1,22 @@
 /* Job Responses */
 
-type ProdiaJobBase = { job: string };
+export type ProdiaJobBase = { job: string };
 
-export type ProdiaJobQueued = ProdiaJobBase & { status: "queued" };
-export type ProdiaJobGenerating = ProdiaJobBase & { status: "generating" };
-export type ProdiaJobFailed = ProdiaJobBase & { status: "failed" };
+export type ProdiaJobQueued = ProdiaJobBase & {
+	imageUrl: undefined;
+	status: "queued";
+};
+export type ProdiaJobGenerating = ProdiaJobBase & {
+	imageUrl: undefined;
+	status: "generating";
+};
+export type ProdiaJobFailed = ProdiaJobBase & {
+	imageUrl: undefined;
+	status: "failed";
+};
 export type ProdiaJobSucceeded = ProdiaJobBase & {
-	status: "succeeded";
 	imageUrl: string;
+	status: "succeeded";
 };
 
 export type ProdiaJob =
@@ -30,8 +39,9 @@ export type ProdiaGenerateRequest = {
 	aspect_ratio?: "square" | "portrait" | "landscape";
 };
 
-export type ProdiaTransformRequest = {
-	imageUrl: string;
+type ImageInput = { imageUrl: string } | { imageData: string };
+
+export type ProdiaTransformRequest = ImageInput & {
 	prompt: string;
 	model?: string;
 	denoising_strength?: number;
@@ -43,8 +53,7 @@ export type ProdiaTransformRequest = {
 	sampler?: string;
 };
 
-export type ProdiaControlnetRequest = {
-	imageUrl: string;
+export type ProdiaControlnetRequest = ImageInput & {
 	controlnet_model: string;
 	controlnet_module?: string;
 	threshold_a?: number;
@@ -59,6 +68,38 @@ export type ProdiaControlnetRequest = {
 	sampler?: string;
 	width?: number;
 	height?: number;
+};
+
+type MaskInput = { maskUrl: string } | { maskData: string };
+
+export type ProdiaInpaintingRequest =
+	& ImageInput
+	& MaskInput
+	& {
+		prompt: string;
+		model?: string;
+		denoising_strength?: number;
+		negative_prompt?: string;
+		steps?: number;
+		cfg_scale?: number;
+		seed?: number;
+		upscale?: boolean;
+		mask_blur: number;
+		inpainting_fill: number;
+		inpainting_mask_invert: number;
+		inpainting_full_res: string;
+		sampler?: string;
+	};
+
+export type ProdiaXlGenerateRequest = {
+	prompt: string;
+	model?: string;
+	negative_prompt?: string;
+	steps?: number;
+	cfg_scale?: number;
+	seed?: number;
+	upscale?: boolean;
+	sampler?: string;
 };
 
 /* Constructor Definions */
@@ -128,6 +169,40 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 		return (await response.json()) as ProdiaJobQueued;
 	};
 
+	const inpainting = async (params: ProdiaInpaintingRequest) => {
+		const response = await fetch(`${base}/sd/inpainting`, {
+			method: "POST",
+			headers: {
+				...headers,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(params),
+		});
+
+		if (response.status !== 200) {
+			throw new Error(`Bad Prodia Response: ${response.status}`);
+		}
+
+		return (await response.json()) as ProdiaJobQueued;
+	};
+
+	const xlGenerate = async (params: ProdiaXlGenerateRequest) => {
+		const response = await fetch(`${base}/sdxl/generate`, {
+			method: "POST",
+			headers: {
+				...headers,
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(params),
+		});
+
+		if (response.status !== 200) {
+			throw new Error(`Bad Prodia Response: ${response.status}`);
+		}
+
+		return (await response.json()) as ProdiaJobQueued;
+	};
+
 	const getJob = async (jobId: string) => {
 		const response = await fetch(`${base}/job/${jobId}`, {
 			headers,
@@ -171,6 +246,8 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 		generate,
 		transform,
 		controlnet,
+		inpainting,
+		xlGenerate,
 		wait,
 		getJob,
 		listModels,
