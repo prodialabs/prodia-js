@@ -104,14 +104,33 @@ export type ProdiaXlGenerateRequest = {
 
 /* Constructor Definions */
 
-export type Prodia = ReturnType<typeof createProdia>;
+export type Prodia = {
+	// sd generations
+	generate: (params: ProdiaGenerateRequest) => Promise<ProdiaJobQueued>;
+	transform: (params: ProdiaTransformRequest) => Promise<ProdiaJobQueued>;
+	controlnet: (params: ProdiaControlnetRequest) => Promise<ProdiaJobQueued>;
+	inpainting: (params: ProdiaInpaintingRequest) => Promise<ProdiaJobQueued>;
+
+	// sdxl generations
+	xlGenerate: (params: ProdiaXlGenerateRequest) => Promise<ProdiaJobQueued>;
+
+	// job info
+	getJob: (jobId: string) => Promise<ProdiaJob>;
+	wait: (params: ProdiaJob) => Promise<ProdiaJobSucceeded | ProdiaJobFailed>;
+
+	// models
+	listModels: () => Promise<string[]>;
+};
 
 export type CreateProdiaOptions = {
 	apiKey: string;
 	base?: string;
 };
 
-export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
+export const createProdia = ({
+	apiKey,
+	base: _base,
+}: CreateProdiaOptions): Prodia => {
 	const base = _base || "https://api.prodia.com/v1";
 
 	const headers = {
@@ -215,7 +234,7 @@ export const createProdia = ({ apiKey, base: _base }: CreateProdiaOptions) => {
 		return (await response.json()) as ProdiaJob;
 	};
 
-	const wait = async (job: ProdiaJobQueued | ProdiaJobGenerating) => {
+	const wait = async (job: ProdiaJob) => {
 		let jobResult: ProdiaJob = job;
 
 		while (

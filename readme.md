@@ -32,37 +32,3 @@ const prodia = createProdia({
 	// check status and view your image :)
 })();
 ```
-
-## API
-
-### `createProdia(opts)` => `Prodia`
-
-Create a new Prodia object.
-
-#### `opts`
-
-- `apiKey` (`string`)
-
-Your API key from the Prodia dashboard.
-
-- `base` (`string`)
-
-Optional: an enterprise-specific Prodia island.
-
-#### `Prodia`
-
-##### `generate(` `params` `)` => `ProdiaJob`
-
-Create a new text to image job.
-
-Supports all parameters [listed in the documentation](https://docs.prodia.com/reference/generate).
-
-##### `transform(` `params` `)` => `ProdiaJob`
-
-Create a new image to image job.
-
-Supports all parameters [listed in the documentation](https://docs.prodia.com/reference/transform).
-
-##### `wait(` `ProdiaJob` `)` => `{` `status`, `imageUrl` `}`
-
-Returns once as job has completed.
