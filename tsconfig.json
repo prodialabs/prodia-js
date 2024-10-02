@@ -11,5 +11,5 @@
 		"baseUrl": ".",
 		"declaration": true
 	},
-	"files": ["prodia.ts"]
+	"files": ["prodia.ts", "v2/index.ts"]
 }
