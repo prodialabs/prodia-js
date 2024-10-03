@@ -1,18 +1,22 @@
-name: Validate Formatting & Types
+name: Formatting, Types, & Test
 
 on: [push, pull_request]
 
 jobs:
-  validate:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - uses: actions/checkout@v3
+    validate:
+        runs-on: ubuntu-latest
 
-      - uses: denoland/setup-deno@v1
-        with:
-          deno-version: v1.x
+        steps:
+            - uses: actions/checkout@v3
 
-      - run: deno fmt --check
+            - uses: denoland/setup-deno@v1
+              with:
+                  deno-version: v1.x
 
-      - run: deno check prodia.ts
+            - run: deno fmt --check
+
+            - run: deno check prodia.ts
+
+            - run: deno test --allow-env --allow-net
+              env:
+                  PRODIA_TOKEN: ${{ secrets.PRODIA_TOKEN }}
