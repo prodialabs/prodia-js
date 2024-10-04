@@ -1,6 +1,6 @@
 {
 	"name": "prodia",
-	"version": "1.0.3",
+	"version": "1.0.4",
 	"description": "Official TypeScript integration for Prodia's AI inference API.",
 	"main": "dist/prodia.js",
 	"types": "dist/prodia.d.ts",
@@ -10,8 +10,8 @@
 		"logo.svg"
 	],
 	"exports": {
-	  ".": "./dist/prodia.js",
-	  "./v2": "./dist/v2/index.js"
+		".": "./dist/prodia.js",
+		"./v2": "./dist/v2/index.js"
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
