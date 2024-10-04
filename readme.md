@@ -28,7 +28,7 @@ const prodia = createProdia({
 
 (async () => {
 	// run a flux dev generation
-	const job = await client.job({
+	const job = await prodia.job({
 		"type": "inference.flux.dev.txt2img.v1",
 		"config": {
 			"prompt": "puppies in a cloud, 4k",

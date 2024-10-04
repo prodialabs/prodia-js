@@ -96,13 +96,13 @@ export const createProdia = ({
 
 		if (response.status === 429) {
 			throw new ProdiaCapacityError(
-				"ProdiaCapacityError: Unable to schedule job with current token",
+				"Unable to schedule job with current token",
 			);
 		}
 
 		if (response.status < 200 || response.status > 299) {
 			throw new ProdiaBadResponseError(
-				`ProdiaBadResponseError: ${response.status} ${response.statusText}`,
+				`${response.status} ${response.statusText}`,
 			);
 		}
 
