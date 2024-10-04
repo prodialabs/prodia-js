@@ -20,10 +20,11 @@ npm install prodia --save
 As of _October 2024_, we require users to have a **Pro+** or **Enterprise** subscription with us to use our v2 API. This is to ensure quality of service. However, we expect to revisit this by EOY and make it available more broadly.
 
 ```javascript
+import fs from "node:fs/promises";
 import { createProdia } from "prodia/v2"; // v2 :)
 
 const prodia = createProdia({
-	token: "...", // grab a token from https://app.prodia.com/api
+	token: process.env.PRODIA_TOKEN, // grab a token from https://app.prodia.com/api
 });
 
 (async () => {
@@ -37,7 +38,10 @@ const prodia = createProdia({
 	});
 
 	const image = await job.arrayBuffer();
-	// display your image
+
+	await fs.writeFile("puppies.jpg", new Uint8Array(image));
+
+	// open puppies.jpg
 })();
 ```
 
