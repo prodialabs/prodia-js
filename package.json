@@ -9,6 +9,10 @@
 		"prodia.ts",
 		"logo.svg"
 	],
+	"exports": {
+	  ".": "./dist/prodia.js",
+	  "./v2": "./dist/v2/index.js"
+	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"prepublish": "tsc",
