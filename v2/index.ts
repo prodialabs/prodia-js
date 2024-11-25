@@ -16,6 +16,7 @@ export type ProdiaJobOptions = {
 		| "image/webp"
 		| "multipart/form-data"
 		| "video/mp4";
+	inputs?: (File | Blob | ArrayBuffer)[];
 };
 
 const defaultJobOptions: ProdiaJobOptions = {
@@ -67,15 +68,46 @@ export const createProdia = ({
 		let errors = 0;
 		let retries = 0;
 
+		const formData = new FormData();
+
+		if (options.inputs !== undefined) {
+			for (const input of options.inputs) {
+				if (input instanceof File) {
+					formData.append("input", input, input.name);
+				}
+
+				if (input instanceof Blob) {
+					formData.append("input", input, "image.jpg");
+				}
+
+				if (input instanceof ArrayBuffer) {
+					formData.append(
+						"input",
+						new Blob([input], {
+							type: "image/jpeg",
+						}),
+						"image.jpg",
+					);
+				}
+			}
+		}
+
+		formData.append(
+			"job",
+			new Blob([JSON.stringify(params)], {
+				type: "application/json",
+			}),
+			"job.json",
+		);
+
 		do {
 			response = await fetch(`${baseUrl}/job`, {
 				method: "POST",
 				headers: {
 					"Authorization": `Bearer ${token}`,
 					"Accept": options.accept,
-					"Content-Type": "application/json",
 				},
-				body: JSON.stringify(params),
+				body: formData,
 			});
 
 			if (response.status === 429) {
