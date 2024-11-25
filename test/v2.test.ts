@@ -10,22 +10,22 @@ if (typeof token !== "string") {
 const isJpeg = (image: ArrayBuffer): boolean => {
 	const view = new Uint8Array(image);
 
-	return view[0] === 0xFF && view[1] === 0xD8;
+	return view[0] === 0xff && view[1] === 0xd8;
 };
 
 await Deno.test("Example Job: JPEG Output", async () => {
 	const client = createProdia({
-		token,
+		token
 	});
 
 	const job = await client.job({
-		"type": "inference.flux.dev.txt2img.v1",
-		"config": {
-			"prompt": "puppies in a cloud, 4k",
-			"steps": 1,
-			"width": 1024,
-			"height": 1024,
-		},
+		type: "inference.flux.dev.txt2img.v1",
+		config: {
+			prompt: "puppies in a cloud, 4k",
+			steps: 1,
+			width: 1024,
+			height: 1024
+		}
 	});
 
 	const image = await job.arrayBuffer();

@@ -5,9 +5,9 @@
 
 Official TypeScript library for Prodia's AI inference API.
 
-- [Get an v1 API Key or v2 Token](https://app.prodia.com/api)
-- [v2 API Explorer](https://app.prodia.com/explorer)
-- [View Docs + Pricing](https://docs.prodia.com/reference/getting-started)
+-   [Get an v1 API Key or v2 Token](https://app.prodia.com/api)
+-   [v2 API Explorer](https://app.prodia.com/explorer)
+-   [View Docs + Pricing](https://docs.prodia.com/reference/getting-started)
 
 ## Usage
 
@@ -24,17 +24,17 @@ import fs from "node:fs/promises";
 import { createProdia } from "prodia/v2"; // v2 :)
 
 const prodia = createProdia({
-	token: process.env.PRODIA_TOKEN, // grab a token from https://app.prodia.com/api
+	token: process.env.PRODIA_TOKEN // grab a token from https://app.prodia.com/api
 });
 
 (async () => {
 	// run a flux dev generation
 	const job = await prodia.job({
-		"type": "inference.flux.dev.txt2img.v1",
-		"config": {
-			"prompt": "puppies in a cloud, 4k",
-			"steps": 25,
-		},
+		type: "inference.flux.dev.txt2img.v1",
+		config: {
+			prompt: "puppies in a cloud, 4k",
+			steps: 25
+		}
 	});
 
 	const image = await job.arrayBuffer();
@@ -51,12 +51,12 @@ const prodia = createProdia({
 import { createProdia } from "prodia";
 
 const prodia = createProdia({
-	apiKey: "...",
+	apiKey: "..."
 });
 
 (async () => {
 	const job = await prodia.generate({
-		prompt: "puppies in a cloud, 4k",
+		prompt: "puppies in a cloud, 4k"
 	});
 
 	const { imageUrl, status } = await prodia.wait(job);

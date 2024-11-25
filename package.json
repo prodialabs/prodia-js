@@ -1,6 +1,6 @@
 {
 	"name": "prodia",
-	"version": "1.0.6",
+	"version": "1.1.0",
 	"description": "Official TypeScript integration for Prodia's AI inference API.",
 	"main": "dist/prodia.js",
 	"types": "dist/prodia.d.ts",
