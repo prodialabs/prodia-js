@@ -15,7 +15,7 @@ const isJpeg = (image: ArrayBuffer): boolean => {
 
 await Deno.test("Example Job: JPEG Output", async () => {
 	const client = createProdia({
-		token
+		token,
 	});
 
 	const job = await client.job({
@@ -24,8 +24,8 @@ await Deno.test("Example Job: JPEG Output", async () => {
 			prompt: "puppies in a cloud, 4k",
 			steps: 1,
 			width: 1024,
-			height: 1024
-		}
+			height: 1024,
+		},
 	});
 
 	const image = await job.arrayBuffer();

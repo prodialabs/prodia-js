@@ -72,8 +72,10 @@ export type ProdiaControlnetRequest = ImageInput & {
 
 type MaskInput = { maskUrl: string } | { maskData: string };
 
-export type ProdiaInpaintingRequest = ImageInput &
-	MaskInput & {
+export type ProdiaInpaintingRequest =
+	& ImageInput
+	& MaskInput
+	& {
 		prompt: string;
 		model?: string;
 		denoising_strength?: number;
@@ -127,12 +129,12 @@ export type CreateProdiaOptions = {
 
 export const createProdia = ({
 	apiKey,
-	base: _base
+	base: _base,
 }: CreateProdiaOptions): Prodia => {
 	const base = _base || "https://api.prodia.com/v1";
 
 	const headers = {
-		"X-Prodia-Key": apiKey
+		"X-Prodia-Key": apiKey,
 	};
 
 	const generate = async (params: ProdiaGenerateRequest) => {
@@ -140,9 +142,9 @@ export const createProdia = ({
 			method: "POST",
 			headers: {
 				...headers,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 
 		if (response.status !== 200) {
@@ -157,9 +159,9 @@ export const createProdia = ({
 			method: "POST",
 			headers: {
 				...headers,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 
 		if (response.status !== 200) {
@@ -174,9 +176,9 @@ export const createProdia = ({
 			method: "POST",
 			headers: {
 				...headers,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 
 		if (response.status !== 200) {
@@ -191,9 +193,9 @@ export const createProdia = ({
 			method: "POST",
 			headers: {
 				...headers,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 
 		if (response.status !== 200) {
@@ -208,9 +210,9 @@ export const createProdia = ({
 			method: "POST",
 			headers: {
 				...headers,
-				"Content-Type": "application/json"
+				"Content-Type": "application/json",
 			},
-			body: JSON.stringify(params)
+			body: JSON.stringify(params),
 		});
 
 		if (response.status !== 200) {
@@ -222,7 +224,7 @@ export const createProdia = ({
 
 	const getJob = async (jobId: string) => {
 		const response = await fetch(`${base}/job/${jobId}`, {
-			headers
+			headers,
 		});
 
 		if (response.status !== 200) {
@@ -249,7 +251,7 @@ export const createProdia = ({
 
 	const listModels = async () => {
 		const response = await fetch(`${base}/models/list`, {
-			headers
+			headers,
 		});
 
 		if (response.status !== 200) {
@@ -267,6 +269,6 @@ export const createProdia = ({
 		xlGenerate,
 		wait,
 		getJob,
-		listModels
+		listModels,
 	};
 };

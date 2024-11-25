@@ -1,6 +1,8 @@
-type JsonObject = { [Key in string]: JsonValue } & {
-	[Key in string]?: JsonValue | undefined;
-};
+type JsonObject =
+	& { [Key in string]: JsonValue }
+	& {
+		[Key in string]?: JsonValue | undefined;
+	};
 type JsonArray = JsonValue[] | readonly JsonValue[];
 type JsonPrimitive = string | number | boolean | null;
 type JsonValue = JsonPrimitive | JsonObject | JsonArray;
@@ -20,7 +22,7 @@ export type ProdiaJobOptions = {
 };
 
 const defaultJobOptions: ProdiaJobOptions = {
-	accept: "image/jpeg"
+	accept: "image/jpeg",
 };
 
 export type ProdiaJobResponse = {
@@ -32,7 +34,7 @@ export type ProdiaJobResponse = {
 export type Prodia = {
 	job: (
 		params: ProdiaJob,
-		options?: Partial<ProdiaJobOptions>
+		options?: Partial<ProdiaJobOptions>,
 	) => Promise<ProdiaJobResponse>;
 };
 
@@ -52,15 +54,15 @@ export const createProdia = ({
 	token,
 	baseUrl = "https://inference.prodia.com/v2",
 	maxErrors = 1,
-	maxRetries = Infinity
+	maxRetries = Infinity,
 }: CreateProdiaOptions): Prodia => {
 	const job = async (
 		params: ProdiaJob,
-		_options?: Partial<ProdiaJobOptions>
+		_options?: Partial<ProdiaJobOptions>,
 	) => {
 		const options = {
 			...defaultJobOptions,
-			..._options
+			..._options,
 		};
 
 		let response: Response;
@@ -84,9 +86,9 @@ export const createProdia = ({
 					formData.append(
 						"input",
 						new Blob([input], {
-							type: "image/jpeg"
+							type: "image/jpeg",
 						}),
-						"image.jpg"
+						"image.jpg",
 					);
 				}
 			}
@@ -95,9 +97,9 @@ export const createProdia = ({
 		formData.append(
 			"job",
 			new Blob([JSON.stringify(params)], {
-				type: "application/json"
+				type: "application/json",
 			}),
-			"job.json"
+			"job.json",
 		);
 
 		do {
@@ -105,9 +107,9 @@ export const createProdia = ({
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
-					Accept: options.accept
+					Accept: options.accept,
 				},
-				body: formData
+				body: formData,
 			});
 
 			if (response.status === 429) {
@@ -128,22 +130,22 @@ export const createProdia = ({
 
 		if (response.status === 429) {
 			throw new ProdiaCapacityError(
-				"Unable to schedule job with current token"
+				"Unable to schedule job with current token",
 			);
 		}
 
 		if (response.status < 200 || response.status > 299) {
 			throw new ProdiaBadResponseError(
-				`${response.status} ${response.statusText}`
+				`${response.status} ${response.statusText}`,
 			);
 		}
 
 		return {
-			arrayBuffer: () => response.arrayBuffer()
+			arrayBuffer: () => response.arrayBuffer(),
 		};
 	};
 
 	return {
-		job
+		job,
 	};
 };
