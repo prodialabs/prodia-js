@@ -74,7 +74,7 @@ export const createProdia = ({
 
 		if (options.inputs !== undefined) {
 			for (const input of options.inputs) {
-				if (input instanceof File) {
+				if (typeof File !== "undefined" && input instanceof File) {
 					formData.append("input", input, input.name);
 				}
 
