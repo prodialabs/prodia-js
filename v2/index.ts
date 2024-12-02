@@ -1,3 +1,18 @@
+/*
+                     ___
+   ___  _______  ___/ (_)__ _
+  / _ \/ __/ _ \/ _  / / _ `/
+ / .__/_/  \___/\_,_/_/\_,_/
+/_/
+
+To ensure an optimal service
+quality, we recommend you use
+this library as-is. We cannot
+guarantee a high quality
+experience with a modified
+client library.
+*/
+
 type JsonObject =
 	& { [Key in string]: JsonValue }
 	& {
