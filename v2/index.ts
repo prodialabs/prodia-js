@@ -27,9 +27,10 @@ type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 export type ProdiaJob = Record<string, JsonValue>;
 
 export type ProdiaJobOptions = {
-	accept:
-		| "image/png"
+	accept?:
+		| "application/json"
 		| "image/jpeg"
+		| "image/png"
 		| "image/webp"
 		| "multipart/form-data"
 		| "video/mp4";
@@ -37,11 +38,15 @@ export type ProdiaJobOptions = {
 };
 
 const defaultJobOptions: ProdiaJobOptions = {
-	accept: "image/jpeg",
+	accept: undefined,
 };
 
 export type ProdiaJobResponse = {
-	arrayBuffer: () => Promise<ArrayBuffer>; // we only support direct image response now
+	job: ProdiaJob;
+
+	// Currently only one output field is expected for all job types.
+	//This will return the raw bytes for that output.
+	arrayBuffer: () => Promise<ArrayBuffer>;
 };
 
 /* client & client configuration*/
@@ -62,6 +67,7 @@ export type CreateProdiaOptions = {
 
 /* error types */
 
+export class ProdiaUserError extends Error {}
 export class ProdiaCapacityError extends Error {}
 export class ProdiaBadResponseError extends Error {}
 
@@ -87,6 +93,9 @@ export const createProdia = ({
 
 		const formData = new FormData();
 
+		// TODO: The input content-type is assumed here, but it shouldn't be.
+		// Eventually we will support non-image inputs and we will need some way
+		// to specify the content-type of the input.
 		if (options.inputs !== undefined) {
 			for (const input of options.inputs) {
 				if (typeof File !== "undefined" && input instanceof File) {
@@ -122,10 +131,17 @@ export const createProdia = ({
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
-					Accept: options.accept,
+					Accept: ["multipart/form-data", options.accept].filter(
+						Boolean,
+					).join("; "),
 				},
 				body: formData,
 			});
+
+			// We bail from the loop if we get a 2xx response to avoid sleeping unnecessarily.
+			if (response.status >= 200 && response.status < 300) {
+				break;
+			}
 
 			if (response.status === 429) {
 				retries += 1;
@@ -138,6 +154,9 @@ export const createProdia = ({
 				setTimeout(resolve, retryAfter * 1000)
 			);
 		} while (
+			response.status !== 400 &&
+			response.status !== 401 &&
+			response.status !== 403 &&
 			(response.status < 200 || response.status > 299) &&
 			errors <= maxErrors &&
 			retries <= maxRetries
@@ -145,8 +164,18 @@ export const createProdia = ({
 
 		if (response.status === 429) {
 			throw new ProdiaCapacityError(
-				"Unable to schedule job with current token",
+				"Unable to schedule the job with current token.",
 			);
+		}
+
+		const body = await response.formData();
+		const job = JSON.parse(
+			new TextDecoder().decode(
+				await (body.get("job") as Blob).arrayBuffer(),
+			),
+		) as ProdiaJob;
+		if ("error" in job && typeof job.error === "string") {
+			throw new ProdiaUserError(job.error);
 		}
 
 		if (response.status < 200 || response.status > 299) {
@@ -155,8 +184,17 @@ export const createProdia = ({
 			);
 		}
 
+		const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
+			const output = body.get("output") as File;
+			const reader = new FileReader();
+			reader.readAsArrayBuffer(output);
+			reader.onload = () => resolve(reader.result as ArrayBuffer);
+			reader.onerror = () => reject(new Error("Failed to read output"));
+		});
+
 		return {
-			arrayBuffer: () => response.arrayBuffer(),
+			job: job,
+			arrayBuffer: () => Promise.resolve(buffer),
 		};
 	};
 
