@@ -11,15 +11,15 @@
 	],
 	"exports": {
 		".": {
-      "import": "./dist/prodia.js",
-      "require": "./dist/prodia.js",
-      "types": "./dist/prodia.d.ts"
-    },
-    "./v2": {
-      "import": "./dist/v2/index.js",
-      "require": "./dist/v2/index.js",
-      "types": "./dist/v2/index.d.ts"
-    }
+			"import": "./dist/prodia.js",
+			"require": "./dist/prodia.js",
+			"types": "./dist/prodia.d.ts"
+		},
+		"./v2": {
+			"import": "./dist/v2/index.js",
+			"require": "./dist/v2/index.js",
+			"types": "./dist/v2/index.d.ts"
+		}
 	},
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
