@@ -162,26 +162,40 @@ export const createProdia = ({
 			retries <= maxRetries
 		);
 
+		if (response.headers.get("Content-Type") === "application/json") {
+			const body = await response.json() as ProdiaJob;
+
+			if ("error" in body && typeof body.error === "string") {
+				throw new ProdiaUserError(body.error);
+			} else {
+				throw new ProdiaBadResponseError(
+					`${response.status} ${response.statusText}`,
+				);
+			}
+		}
+
 		if (response.status === 429) {
 			throw new ProdiaCapacityError(
 				"Unable to schedule the job with current token.",
 			);
 		}
 
+		if (response.status < 200 || response.status > 299) {
+			throw new ProdiaBadResponseError(
+				`${response.status} ${response.statusText}`,
+			);
+		}
+
 		const body = await response.formData();
+
 		const job = JSON.parse(
 			new TextDecoder().decode(
 				await (body.get("job") as Blob).arrayBuffer(),
 			),
 		) as ProdiaJob;
+
 		if ("error" in job && typeof job.error === "string") {
 			throw new ProdiaUserError(job.error);
-		}
-
-		if (response.status < 200 || response.status > 299) {
-			throw new ProdiaBadResponseError(
-				`${response.status} ${response.statusText}`,
-			);
 		}
 
 		const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
