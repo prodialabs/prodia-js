@@ -93,36 +93,26 @@ export const createProdia = ({
 
 		const formData = new FormData();
 
-		// TODO: The input content-type is assumed here, but it shouldn't be.
-		// Eventually we will support non-image inputs and we will need some way
-		// to specify the content-type of the input.
+		// Handle input files/blobs/buffers
 		if (options.inputs !== undefined) {
 			for (const input of options.inputs) {
-				if (typeof File !== "undefined" && input instanceof File) {
-					formData.append("input", input, input.name);
-				}
-
-				if (input instanceof Blob) {
+				if (input instanceof Buffer) {
 					formData.append("input", input, "image.jpg");
-				}
-
-				if (input instanceof ArrayBuffer) {
+				} else if (input instanceof ArrayBuffer) {
 					formData.append(
 						"input",
-						new Blob([input], {
-							type: "image/jpeg",
-						}),
+						Buffer.from(input),
 						"image.jpg",
 					);
+				} else {
+					throw new Error("Unsupported input type for Node.js backend");
 				}
 			}
 		}
 
 		formData.append(
 			"job",
-			new Blob([JSON.stringify(params)], {
-				type: "application/json",
-			}),
+			Buffer.from(JSON.stringify(params)),
 			"job.json",
 		);
 
@@ -138,11 +128,12 @@ export const createProdia = ({
 				body: formData,
 			});
 
-			// We bail from the loop if we get a 2xx response to avoid sleeping unnecessarily.
+			// Handle successful responses
 			if (response.status >= 200 && response.status < 300) {
 				break;
 			}
 
+			// Handle rate limiting and retry logic
 			if (response.status === 429) {
 				retries += 1;
 			} else if (response.status < 200 || response.status > 299) {
@@ -170,10 +161,9 @@ export const createProdia = ({
 
 		const body = await response.formData();
 		const job = JSON.parse(
-			new TextDecoder().decode(
-				await (body.get("job") as Blob).arrayBuffer(),
-			),
+			Buffer.from(await body.get("job").arrayBuffer()).toString("utf-8")
 		) as ProdiaJob;
+
 		if ("error" in job && typeof job.error === "string") {
 			throw new ProdiaUserError(job.error);
 		}
@@ -184,19 +174,25 @@ export const createProdia = ({
 			);
 		}
 
-		const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-			const output = body.get("output") as File;
-			const reader = new FileReader();
-			reader.readAsArrayBuffer(output);
-			reader.onload = () => resolve(reader.result as ArrayBuffer);
-			reader.onerror = () => reject(new Error("Failed to read output"));
-		});
+		// Replace FileReader logic with Node.js Buffer handling
+		const output = body.get("output");
+		if (!output) {
+			throw new Error("Output field is missing from the response");
+		}
+
+		const buffer = Buffer.from(await output.arrayBuffer());
 
 		return {
 			job: job,
 			arrayBuffer: () => Promise.resolve(buffer),
 		};
 	};
+
+	return {
+		job,
+	};
+};
+
 
 	return {
 		job,
