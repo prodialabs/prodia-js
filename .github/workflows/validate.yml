@@ -17,6 +17,8 @@ jobs:
 
             - run: deno check prodia.ts
 
-            - run: deno test --allow-env --allow-net
+            - run: deno test --allow-env --allow-net --allow-read --coverage
               env:
                   PRODIA_TOKEN: ${{ secrets.PRODIA_TOKEN }}
+
+            - run: deno coverage
