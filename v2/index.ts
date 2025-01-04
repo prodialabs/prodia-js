@@ -184,13 +184,7 @@ export const createProdia = ({
 			);
 		}
 
-		const buffer = await new Promise<ArrayBuffer>((resolve, reject) => {
-			const output = body.get("output") as File;
-			const reader = new FileReader();
-			reader.readAsArrayBuffer(output);
-			reader.onload = () => resolve(reader.result as ArrayBuffer);
-			reader.onerror = () => reject(new Error("Failed to read output"));
-		});
+		const buffer = await (body.get("output") as Blob).arrayBuffer();
 
 		return {
 			job: job,

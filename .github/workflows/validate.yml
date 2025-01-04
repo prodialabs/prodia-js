@@ -11,12 +11,33 @@ jobs:
 
             - uses: denoland/setup-deno@v1
               with:
-                  deno-version: v2.x
+                  deno-version: vx.x.x
 
             - run: deno fmt --check
 
             - run: deno check prodia.ts
 
             - run: deno test --allow-env --allow-net
+              env:
+                  PRODIA_TOKEN: ${{ secrets.PRODIA_TOKEN }}
+
+    node-test:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [18, 20, 22]
+
+        steps:
+            - uses: actions/checkout@v3
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+
+            - run: npm run prepublish
+
+            - run: node example.mjs
               env:
                   PRODIA_TOKEN: ${{ secrets.PRODIA_TOKEN }}
