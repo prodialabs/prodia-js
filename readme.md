@@ -5,7 +5,7 @@
 
 Official TypeScript library for Prodia's AI inference API.
 
-> **Note**
+> [!NOTE]
 > Requires Node >= 18 or Deno >= 2
 
 - [Get an v1 API Key or v2 Token](https://app.prodia.com/api)
