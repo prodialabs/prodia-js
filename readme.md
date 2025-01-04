@@ -5,11 +5,16 @@
 
 Official TypeScript library for Prodia's AI inference API.
 
+> **Note**
+> Requires Node >= 18 or Deno >= 2
+
 - [Get an v1 API Key or v2 Token](https://app.prodia.com/api)
 - [v2 API Explorer](https://app.prodia.com/explorer)
 - [View Docs + Pricing](https://docs.prodia.com/reference/getting-started)
 
 ## Usage
+
+
 
 ```
 npm install prodia --save
