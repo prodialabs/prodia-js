@@ -1,12 +1,13 @@
-import { createProdia } from "./v2";
+import { createProdia } from "./dist/v2/index.js";
+import { strictEqual } from "assert";
 
-const token = Deno.env.get("PRODIA_TOKEN");
+const token = process.env.PRODIA_TOKEN;
 
 if (typeof token !== "string") {
 	throw new Error("PRODIA_TOKEN is not set");
 }
 
-const isJpeg = (image: ArrayBuffer): boolean => {
+const isJpeg = (image) => {
 	const view = new Uint8Array(image);
 
 	return view[0] === 0xff && view[1] === 0xd8;
@@ -28,4 +29,4 @@ const job = await client.job({
 
 const image = await job.arrayBuffer();
 
-assertEquals(isJpeg(image), true, "Image should be a JPEG");
+strictEqual(isJpeg(image), true, "Image should be a JPEG");
