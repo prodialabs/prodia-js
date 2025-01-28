@@ -168,6 +168,16 @@ export const createProdia = ({
 			);
 		}
 
+		if (response.headers.get("Content-Type") === "application/json") {
+			const body = await response.json();
+
+			if ("error" in body && typeof body.error === "string") {
+				throw new ProdiaUserError(body.error);
+			}
+
+			throw new Error("Job Failed: Bad Content-Type: application/json");
+		}
+
 		const body = await response.formData();
 		const job = JSON.parse(
 			new TextDecoder().decode(
