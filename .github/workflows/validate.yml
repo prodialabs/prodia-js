@@ -11,11 +11,13 @@ jobs:
 
             - uses: denoland/setup-deno@v1
               with:
-                  deno-version: vx.x.x
+                  deno-version: v2.x.x
 
             - run: deno fmt --check
 
             - run: deno check prodia.ts
+
+            - run: deno check v2/index.ts
 
             - run: deno test --allow-env --allow-net
               env:

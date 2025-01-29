@@ -44,9 +44,10 @@ const defaultJobOptions: ProdiaJobOptions = {
 export type ProdiaJobResponse = {
 	job: ProdiaJob;
 
-	// Currently only one output field is expected for all job types.
-	//This will return the raw bytes for that output.
+	// currently these are the only output field for all job types.
+	// they will return the raw bytes for that output.
 	arrayBuffer: () => Promise<ArrayBuffer>;
+	uint8Array: () => Promise<Uint8Array>;
 };
 
 /* client & client configuration*/
@@ -75,7 +76,7 @@ export const createProdia = ({
 	token,
 	baseUrl = "https://inference.prodia.com/v2",
 	maxErrors = 1,
-	maxRetries = Infinity,
+	maxRetries = 10,
 }: CreateProdiaOptions): Prodia => {
 	const job = async (
 		params: ProdiaJob,
@@ -164,7 +165,7 @@ export const createProdia = ({
 
 		if (response.status === 429) {
 			throw new ProdiaCapacityError(
-				"Unable to schedule the job with current token.",
+				"Unable to schedule the job. Are your sure your token and job type are correct?",
 			);
 		}
 
@@ -175,30 +176,41 @@ export const createProdia = ({
 				throw new ProdiaUserError(body.error);
 			}
 
+			const lastStateHistory = body.state.history.slice(-1)[0];
+
+			if (lastStateHistory && "message" in lastStateHistory) {
+				throw new ProdiaUserError(lastStateHistory.message);
+			}
+
 			throw new Error("Job Failed: Bad Content-Type: application/json");
 		}
 
+		if (response.status < 200 || response.status > 299) {
+			throw new ProdiaBadResponseError(
+				`${response.status} ${await response.text()}`,
+			);
+		}
+
 		const body = await response.formData();
+
 		const job = JSON.parse(
 			new TextDecoder().decode(
 				await (body.get("job") as Blob).arrayBuffer(),
 			),
 		) as ProdiaJob;
+
 		if ("error" in job && typeof job.error === "string") {
 			throw new ProdiaUserError(job.error);
 		}
 
-		if (response.status < 200 || response.status > 299) {
-			throw new ProdiaBadResponseError(
-				`${response.status} ${response.statusText}`,
-			);
-		}
-
-		const buffer = await (body.get("output") as Blob).arrayBuffer();
-
 		return {
 			job: job,
-			arrayBuffer: () => Promise.resolve(buffer),
+			arrayBuffer: async () =>
+				await (body.get("output") as Blob).arrayBuffer(),
+			uint8Array: async () =>
+				new Uint8Array(
+					await (body.get("output") as Blob).arrayBuffer(),
+				),
 		};
 	};
 
