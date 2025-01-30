@@ -34,9 +34,14 @@ await Deno.test("Error Propagation: Bad Job Config returns ProdiaUserError", {
 			err instanceof ProdiaUserError,
 			"Error should be a ProdiaUserError",
 		);
-		assertStringIncludes(err.message, "jsonschema validation failed");
-		assertStringIncludes(err.message, "steps/maximum");
+		assertStringIncludes(err.message, "steps");
 		assertStringIncludes(err.message, "maximum: got 1,000");
+		assert(
+			err.message.match(
+				/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/,
+			),
+			"Error message should contain a job id",
+		);
 	}
 });
 
@@ -49,11 +54,14 @@ await Deno.test("Error Propagation: No Job Type returns ProdiaCapacityError", {
 	});
 
 	try {
-		await client.job({
-			config: {
-				prompt: "puppies in a cloud, 4k",
+		await client.job(
+			// @ts-ignore
+			{
+				config: {
+					prompt: "puppies in a cloud, 4k",
+				},
 			},
-		});
+		);
 
 		throw new Error("Job should not succeed");
 	} catch (err) {
