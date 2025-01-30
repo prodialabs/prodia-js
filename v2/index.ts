@@ -24,7 +24,21 @@ type JsonValue = JsonPrimitive | JsonObject | JsonArray;
 
 /* job and job configuration */
 
-export type ProdiaJob = Record<string, JsonValue>;
+export type ProdiaJob = {
+	type: string;
+	config?: Record<string, JsonValue>;
+};
+
+type ProdiaJobComplete = ProdiaJob & {
+	id: string;
+	created_at: string;
+	updated_at: string;
+	expires_at: string;
+	metrics: {
+		elapsed: number;
+		ips?: number;
+	};
+};
 
 export type ProdiaJobOptions = {
 	accept?:
@@ -34,20 +48,11 @@ export type ProdiaJobOptions = {
 		| "image/webp"
 		| "multipart/form-data"
 		| "video/mp4";
-	inputs?: (File | Blob | ArrayBuffer)[];
+	inputs?: (File | Blob | ArrayBuffer | Uint8Array)[];
 };
 
 const defaultJobOptions: ProdiaJobOptions = {
 	accept: undefined,
-};
-
-export type ProdiaJobResponse = {
-	job: ProdiaJob;
-
-	// currently these are the only output field for all job types.
-	// they will return the raw bytes for that output.
-	arrayBuffer: () => Promise<ArrayBuffer>;
-	uint8Array: () => Promise<Uint8Array>;
 };
 
 /* client & client configuration*/
@@ -56,7 +61,14 @@ export type Prodia = {
 	job: (
 		params: ProdiaJob,
 		options?: Partial<ProdiaJobOptions>,
-	) => Promise<ProdiaJobResponse>;
+	) => Promise<{
+		job: ProdiaJobComplete;
+
+		// currently these are the only output field for all job types.
+		// they will return the raw bytes for that output.
+		arrayBuffer: () => Promise<ArrayBuffer>;
+		uint8Array: () => Promise<Uint8Array>;
+	}>;
 };
 
 export type CreateProdiaOptions = {
@@ -107,6 +119,22 @@ export const createProdia = ({
 					formData.append("input", input, "image.jpg");
 				}
 
+				if (input instanceof Uint8Array) {
+					formData.append(
+						"input",
+						new Blob([
+							// uint8array is a view on the buffer, so we need to slice it
+							input.buffer.slice(
+								input.byteOffset,
+								input.byteOffset + input.byteLength,
+							),
+						], {
+							type: "image/jpeg",
+						}),
+						"image.jpg",
+					);
+				}
+
 				if (input instanceof ArrayBuffer) {
 					formData.append(
 						"input",
@@ -139,7 +167,7 @@ export const createProdia = ({
 				body: formData,
 			});
 
-			// We bail from the loop if we get a 2xx response to avoid sleeping unnecessarily.
+			// we bail from the loop if we get a 2xx response to avoid sleeping unnecessarily.
 			if (response.status >= 200 && response.status < 300) {
 				break;
 			}
@@ -151,6 +179,7 @@ export const createProdia = ({
 			}
 
 			const retryAfter = Number(response.headers.get("Retry-After")) || 1;
+
 			await new Promise((resolve) =>
 				setTimeout(resolve, retryAfter * 1000)
 			);
@@ -169,23 +198,11 @@ export const createProdia = ({
 			);
 		}
 
-		if (response.headers.get("Content-Type") === "application/json") {
-			const body = await response.json();
-
-			if ("error" in body && typeof body.error === "string") {
-				throw new ProdiaUserError(body.error);
-			}
-
-			const lastStateHistory = body.state.history.slice(-1)[0];
-
-			if (lastStateHistory && "message" in lastStateHistory) {
-				throw new ProdiaUserError(lastStateHistory.message);
-			}
-
-			throw new Error("Job Failed: Bad Content-Type: application/json");
-		}
-
-		if (response.status < 200 || response.status > 299) {
+		if (
+			!response.headers.get("Content-Type")?.startsWith(
+				"multipart/form-data",
+			)
+		) {
 			throw new ProdiaBadResponseError(
 				`${response.status} ${await response.text()}`,
 			);
@@ -197,10 +214,12 @@ export const createProdia = ({
 			new TextDecoder().decode(
 				await (body.get("job") as Blob).arrayBuffer(),
 			),
-		) as ProdiaJob;
+		) as ProdiaJobComplete;
 
-		if ("error" in job && typeof job.error === "string") {
-			throw new ProdiaUserError(job.error);
+		if (response.status >= 400 && response.status < 500) {
+			if ("error" in job && typeof job.error === "string") {
+				throw new ProdiaUserError(job.error + " " + `(id: ${job.id})`);
+			}
 		}
 
 		return {
