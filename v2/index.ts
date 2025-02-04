@@ -29,7 +29,7 @@ export type ProdiaJob = {
 	config?: Record<string, JsonValue>;
 };
 
-type ProdiaJobComplete = ProdiaJob & {
+type ProdiaJobResult = ProdiaJob & {
 	id: string;
 	created_at: string;
 	updated_at: string;
@@ -62,7 +62,7 @@ export type Prodia = {
 		params: ProdiaJob,
 		options?: Partial<ProdiaJobOptions>,
 	) => Promise<{
-		job: ProdiaJobComplete;
+		job: ProdiaJobResult;
 
 		// currently these are the only output field for all job types.
 		// they will return the raw bytes for that output.
@@ -214,7 +214,7 @@ export const createProdia = ({
 			new TextDecoder().decode(
 				await (body.get("job") as Blob).arrayBuffer(),
 			),
-		) as ProdiaJobComplete;
+		) as ProdiaJobResult;
 
 		if (response.status >= 400 && response.status < 500) {
 			if ("error" in job && typeof job.error === "string") {
