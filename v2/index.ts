@@ -68,6 +68,9 @@ export type Prodia = {
 		// they will return the raw bytes for that output.
 		arrayBuffer: () => Promise<ArrayBuffer>;
 		uint8Array: () => Promise<Uint8Array>;
+
+		// get entire multipart form response
+		form: () => Promise<FormData>;
 	}>;
 };
 
@@ -230,6 +233,7 @@ export const createProdia = ({
 				new Uint8Array(
 					await (body.get("output") as Blob).arrayBuffer(),
 				),
+			form: () => Promise.resolve(body),
 		};
 	};
 
