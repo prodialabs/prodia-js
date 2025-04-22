@@ -70,7 +70,7 @@ export type Prodia = {
 		uint8Array: () => Promise<Uint8Array>;
 
 		// get entire multipart form response
-		form: () => Promise<FormData>;
+		formData: () => Promise<FormData>;
 	}>;
 };
 
@@ -233,7 +233,7 @@ export const createProdia = ({
 				new Uint8Array(
 					await (body.get("output") as Blob).arrayBuffer(),
 				),
-			form: () => Promise.resolve(body),
+			formData: () => Promise.resolve(body),
 		};
 	};
 
