@@ -29,6 +29,11 @@ export type ProdiaJob = {
 	config?: Record<string, JsonValue>;
 };
 
+export type ProdiaJobPrice = {
+	product: string;
+	dollars: number;
+};
+
 type ProdiaJobResult = ProdiaJob & {
 	id: string;
 	created_at: string;
@@ -38,6 +43,7 @@ type ProdiaJobResult = ProdiaJob & {
 		elapsed: number;
 		ips?: number;
 	};
+	price?: ProdiaJobPrice;
 };
 
 export type ProdiaJobOptions = {
@@ -49,6 +55,7 @@ export type ProdiaJobOptions = {
 		| "multipart/form-data"
 		| "video/mp4";
 	inputs?: (File | Blob | ArrayBuffer | Uint8Array)[];
+	price?: boolean;
 };
 
 const defaultJobOptions: ProdiaJobOptions = {
@@ -152,8 +159,12 @@ export const createProdia = ({
 			"job.json",
 		);
 
+		const jobUrl = options.price
+			? `${baseUrl}/job?price=true`
+			: `${baseUrl}/job`;
+
 		do {
-			response = await fetch(`${baseUrl}/job`, {
+			response = await fetch(jobUrl, {
 				method: "POST",
 				headers: {
 					Authorization: `Bearer ${token}`,
