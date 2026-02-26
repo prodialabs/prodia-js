@@ -18,12 +18,10 @@ const client = createProdia({
 });
 
 const job = await client.job({
-	type: "inference.flux.dev.txt2img.v1",
+	type: "inference.flux-fast.schnell.txt2img.v2",
 	config: {
 		prompt: "puppies in a cloud, 4k",
 		steps: 1,
-		width: 1024,
-		height: 1024,
 	},
 });
 

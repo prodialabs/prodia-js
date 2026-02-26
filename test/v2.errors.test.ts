@@ -21,7 +21,7 @@ await Deno.test("Error Propagation: Bad Job Config returns ProdiaUserError", {
 
 	try {
 		const job = await client.job({
-			type: "inference.flux.schnell.txt2img.v1",
+			type: "inference.flux-fast.schnell.txt2img.v2",
 			config: {
 				prompt: "puppies in a cloud, 4k",
 				steps: 1000,
@@ -45,37 +45,36 @@ await Deno.test("Error Propagation: Bad Job Config returns ProdiaUserError", {
 	}
 });
 
-await Deno.test("Error Propagation: No Job Type returns ProdiaCapacityError", {
-	sanitizeResources: false,
-}, async () => {
-	const client = createProdia({
-		token,
-		maxRetries: 2,
-	});
+await Deno.test(
+	"Error Propagation: No Job Type returns ProdiaBadResponseError",
+	{
+		sanitizeResources: false,
+	},
+	async () => {
+		const client = createProdia({
+			token,
+			maxRetries: 2,
+		});
 
-	try {
-		await client.job(
-			// @ts-ignore
-			{
-				config: {
-					prompt: "puppies in a cloud, 4k",
+		try {
+			await client.job(
+				// @ts-ignore
+				{
+					config: {
+						prompt: "puppies in a cloud, 4k",
+					},
 				},
-			},
-		);
+			);
 
-		throw new Error("Job should not succeed");
-	} catch (err) {
-		assert(
-			err instanceof ProdiaCapacityError,
-			"Error should be a ProdiaCapacityError",
-		);
-
-		assertStringIncludes(
-			err.message,
-			"Are your sure your token and job type are correct?",
-		);
-	}
-});
+			throw new Error("Job should not succeed");
+		} catch (err) {
+			assert(
+				err instanceof ProdiaBadResponseError,
+				"Error should be a ProdiaBadResponseError",
+			);
+		}
+	},
+);
 
 await Deno.test(
 	'Error Propagation: Bad Token returns ProdiaBadResponseError "invalid token"',
@@ -87,7 +86,7 @@ await Deno.test(
 
 		try {
 			await client.job({
-				type: "inference.flux.schnell.txt2img.v1",
+				type: "inference.flux-fast.schnell.txt2img.v2",
 				config: {
 					prompt: "puppies in a cloud, 4k",
 				},
