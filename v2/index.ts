@@ -125,13 +125,7 @@ export const createProdia = ({
 				if (input instanceof Uint8Array) {
 					formData.append(
 						"input",
-						new Blob([
-							// uint8array is a view on the buffer, so we need to slice it
-							input.buffer.slice(
-								input.byteOffset,
-								input.byteOffset + input.byteLength,
-							),
-						], {
+						new Blob([input as BlobPart], {
 							type: "image/jpeg",
 						}),
 						"image.jpg",

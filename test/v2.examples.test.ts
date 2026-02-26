@@ -21,18 +21,18 @@ const isPng = (image: ArrayBuffer): boolean => {
 	);
 };
 
-await Deno.test("Example Job: JPEG Output (ArrayBuffer)", async () => {
+await Deno.test("Example Job: JPEG Output (ArrayBuffer)", {
+	sanitizeResources: false,
+}, async () => {
 	const client = createProdia({
 		token,
 	});
 
 	const job = await client.job({
-		type: "inference.flux.schnell.txt2img.v1",
+		type: "inference.flux-fast.schnell.txt2img.v2",
 		config: {
 			prompt: "puppies in a cloud, 4k",
 			steps: 1,
-			width: 1024,
-			height: 1024,
 		},
 	});
 
@@ -43,18 +43,18 @@ await Deno.test("Example Job: JPEG Output (ArrayBuffer)", async () => {
 	assertEquals(isJpeg(image), true, "Image should be a JPEG");
 });
 
-await Deno.test("Example Job: JPEG Output (Uint8Array)", async () => {
+await Deno.test("Example Job: JPEG Output (Uint8Array)", {
+	sanitizeResources: false,
+}, async () => {
 	const client = createProdia({
 		token,
 	});
 
 	const job = await client.job({
-		type: "inference.flux.schnell.txt2img.v1",
+		type: "inference.flux-fast.schnell.txt2img.v2",
 		config: {
 			prompt: "puppies in a cloud, 4k",
 			steps: 1,
-			width: 1024,
-			height: 1024,
 		},
 	});
 
@@ -64,18 +64,18 @@ await Deno.test("Example Job: JPEG Output (Uint8Array)", async () => {
 	assertEquals(isJpeg(image), true, "Image should be a JPEG");
 });
 
-await Deno.test("Example Job: PNG Output (Uint8Array)", async () => {
+await Deno.test("Example Job: PNG Output (Uint8Array)", {
+	sanitizeResources: false,
+}, async () => {
 	const client = createProdia({
 		token,
 	});
 
 	const job = await client.job({
-		type: "inference.flux.schnell.txt2img.v1",
+		type: "inference.flux-fast.schnell.txt2img.v2",
 		config: {
 			prompt: "puppies in a cloud, 4k",
 			steps: 1,
-			width: 1024,
-			height: 1024,
 		},
 	}, {
 		accept: "image/png",
