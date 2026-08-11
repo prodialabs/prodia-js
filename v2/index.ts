@@ -116,13 +116,9 @@ export const createProdia = ({
 			for (const input of options.inputs) {
 				if (typeof File !== "undefined" && input instanceof File) {
 					formData.append("input", input, input.name);
-				}
-
-				if (input instanceof Blob) {
+				} else if (input instanceof Blob) {
 					formData.append("input", input, "image.jpg");
-				}
-
-				if (input instanceof Uint8Array) {
+				} else if (input instanceof Uint8Array) {
 					formData.append(
 						"input",
 						new Blob([input as BlobPart], {
@@ -130,9 +126,7 @@ export const createProdia = ({
 						}),
 						"image.jpg",
 					);
-				}
-
-				if (input instanceof ArrayBuffer) {
+				} else if (input instanceof ArrayBuffer) {
 					formData.append(
 						"input",
 						new Blob([input], {
@@ -216,7 +210,15 @@ export const createProdia = ({
 		if (response.status >= 400 && response.status < 500) {
 			if ("error" in job && typeof job.error === "string") {
 				throw new ProdiaUserError(job.error + " " + `(id: ${job.id})`);
+			} else {
+				throw new ProdiaUserError(
+					`User Error ${response.status}: ${JSON.stringify(job)} (id: ${job.id ?? "unknown"})`,
+				);
 			}
+		} else if (response.status >= 500) {
+			throw new ProdiaBadResponseError(
+				`Server Error ${response.status}: ${JSON.stringify(job)}`,
+			);
 		}
 
 		return {
