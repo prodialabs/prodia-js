@@ -127,7 +127,7 @@ Video job types work exactly the same way — the output is just an MP4:
 
 ```javascript
 const job = await prodia.job({
-	type: "inference.veo.fast.txt2vid.v1",
+	type: "inference.minimax.h3.fast.txt2vid.v1",
 	config: {
 		prompt: "a sweeping mountain landscape at sunrise",
 	},
