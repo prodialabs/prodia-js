@@ -210,7 +210,15 @@ export const createProdia = ({
 		if (response.status >= 400 && response.status < 500) {
 			if ("error" in job && typeof job.error === "string") {
 				throw new ProdiaUserError(job.error + " " + `(id: ${job.id})`);
+			} else {
+				throw new ProdiaUserError(
+					`User Error ${response.status}: ${JSON.stringify(job)} (id: ${job.id ?? "unknown"})`,
+				);
 			}
+		} else if (response.status >= 500) {
+			throw new ProdiaBadResponseError(
+				`Server Error ${response.status}: ${JSON.stringify(job)}`,
+			);
 		}
 
 		return {
