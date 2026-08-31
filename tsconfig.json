@@ -1,14 +1,13 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
+		"module": "node16",
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"target": "ES2022",
 		"noImplicitAny": true,
-		"moduleResolution": "node",
+		"moduleResolution": "node16",
 		"sourceMap": true,
 		"outDir": "dist",
-		"baseUrl": ".",
 		"declaration": true
 	},
 	"files": ["prodia.ts", "v2/index.ts"]

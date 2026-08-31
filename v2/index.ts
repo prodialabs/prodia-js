@@ -116,13 +116,9 @@ export const createProdia = ({
 			for (const input of options.inputs) {
 				if (typeof File !== "undefined" && input instanceof File) {
 					formData.append("input", input, input.name);
-				}
-
-				if (input instanceof Blob) {
+				} else if (input instanceof Blob) {
 					formData.append("input", input, "image.jpg");
-				}
-
-				if (input instanceof Uint8Array) {
+				} else if (input instanceof Uint8Array) {
 					formData.append(
 						"input",
 						new Blob([input as BlobPart], {
@@ -130,9 +126,7 @@ export const createProdia = ({
 						}),
 						"image.jpg",
 					);
-				}
-
-				if (input instanceof ArrayBuffer) {
+				} else if (input instanceof ArrayBuffer) {
 					formData.append(
 						"input",
 						new Blob([input], {
